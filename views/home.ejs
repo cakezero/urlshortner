@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+    <head>
+        <title>Url Shortener</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    </head>
+    <body>
+        <div class="container">
+            <h1 class="my-4">URL SHORTENER</h1>
+
+            <form action="/short" method="post" class="my-4 form-inline">
+                <input type="text" name="url" placeholder="Enter url to be shortened" required class="form-control col mr-2">
+                <button class="btn btn-primary my-2" type="submit">Shorten</button>
+            </form>
+
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Url</th>
+                        <th>Short Url</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% urls.forEach(url => { %>
+                        <tr>
+                            <td>
+                                <a href="<%= url.longUrl %>"><%= url.longUrl %></a>
+                            </td>
+                            <td>
+                                <a href="<%= url.shortUrl %>"><%= url.shortUrl %></a>
+                            </td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        </div>
+    </body>
+</html>
+
+<script>
+
+</script>
