@@ -25,7 +25,7 @@ app.get('/:shortUrl', async (req, res) => {
     const shortUrl = req.params.shortUrl;
     await Url.findOne({ shortUrl })
         .then((result) => res.redirect(`${ result.longUrl }`))
-        .catch((error) => res.sendStatus(404))
+        .catch((error) => res.sendStatus(500))
 })
 
 app.post('/short', async (req, res) => {
