@@ -3,7 +3,7 @@ const express = require('express');
 const randomstring = require('randomstring');
 const mongoose = require('mongoose');
 const Url = require('./models/model');
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT;
 const DB_URL = process.env.DB_URL || 'mongodb://127.0.0.1:27017/shortener';
 
 const app = express();
