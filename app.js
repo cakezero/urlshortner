@@ -31,11 +31,23 @@ app.get('/:shortUrl', async (req, res) => {
 app.post('/short', async (req, res) => {
     const { url } = req.body;
     const shortUrl = randomstring.generate(8);
-    const newUrl = await new Url({
-        longUrl: url,
-        shortUrl: shortUrl
-    })
-    newUrl.save()
-      .then(() => res.redirect('/'))
-      .catch((error) => console.log({ "Error": error }))
+    if (url.slice(0, 8) === 'https://'){
+        const newUrl = await new Url({
+            longUrl: url,
+            shortUrl: shortUrl
+        });
+        newUrl.save()
+            .then(() => res.redirect('/'))
+            .catch((error) => console.log({ "Error": error }))
+    } else {
+        const http = 'https://';
+        const newUrl = await new Url({
+            longUrl: http + url,
+            shortUrl: shortUrl
+        });
+        newUrl.save()
+            .then(() => res.redirect('/'))
+            .catch((error) => console.log({ "Error": error }))
+    }
+    
 })
