@@ -7,9 +7,9 @@
         <div class="container">
             <h1 class="my-4">URL SHORTENER</h1>
 
-            <form action="/short" method="post" class="my-4 form-inline">
-                <input type="text" name="url" placeholder="Enter url to be shortened" required class="form-control col mr-2">
-                <button class="btn btn-primary my-2" type="submit">Shorten</button>
+            <form class="my-4 form-inline">
+                <input type="text" name="url" placeholder="Enter url to be shortened with it's protocol e.g. https://example.com" required class="form-control col mr-2">
+                <button class="btn btn-primary my-2" onclick="vent()">Shorten</button>
             </form>
 
             <table class="table table-striped">
@@ -20,22 +20,54 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <% urls.forEach(url => { %>
-                        <tr>
-                            <td>
-                                <a href="<%= url.longUrl %>"><%= url.longUrl %></a>
-                            </td>
-                            <td>
-                                <a href="<%= url.shortUrl %>"><%= url.shortUrl %></a>
-                            </td>
-                        </tr>
-                    <% }) %>
+                    <tr id="rowe">
+                        <% if (user) { %>
+                            <% if (urls) { %>
+                                <% urls.forEach(url => { %>
+                                    <td>
+                                        <a target="_blank" rel="noreferrer noopener" href="<%= url.longUrl %>"><%= url.longUrl %></a>
+                                    </td>
+                                    <td>
+                                        <a target="_blank" rel="noreferrer noopener" href="<%= url.shortUrl %>"><%= url.shortUrl %></a>
+                                    </td>
+                                <% }) %>
+                            <% } %>
+                        <% } %>
+                    </tr>
                 </tbody>
             </table>
         </div>
     </body>
+    <script>
+
+        async function vent() {
+            const form = document.querySelector('form');
+            const url = form.url.value;
+            console.log(url)
+
+            const res = await fetch('/short', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url })
+            });
+            const data = await res.json();
+            if (data.notSigned) {
+                const tr = document.getElementById('rowe');
+                tr.innerHTML = `
+                    <td>
+                        <a target="_blank" rel="noreferrer noopener" href="${data.notSigned.longUrl}">${data.notSigned.longUrl}</a>
+                    </td>
+                    <td>
+                        <a target="_blank" rel="noreferrer noopener" href="${data.notSigned.longUrl}">${data.notSigned.shortUrl}</a>
+                    </td>
+                `
+            }
+            if (data.error) {
+                alert(data.error);
+            }
+            if (data.message) {
+                window.location.href = '/';
+            }
+        }
+    </script>
 </html>
-
-<script>
-
-</script>

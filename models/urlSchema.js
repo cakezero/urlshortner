@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
+const User = require('./authSchema')
 
 const urlSchema = new Schema({
     longUrl: {
@@ -9,6 +10,10 @@ const urlSchema = new Schema({
     shortUrl: {
         type: String,
         required: true
+    },
+    user: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'User'
     }
 })
 

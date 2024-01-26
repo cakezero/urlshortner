@@ -1,53 +1,26 @@
 require('dotenv').config();
 const express = require('express');
-const randomstring = require('randomstring');
 const mongoose = require('mongoose');
-const Url = require('./models/model');
+const cookieParser = require('cookie-parser');
+const { checkUser } = require('./middleware/authToken');
+const userRoutes = require('./routes/userRoutes');
+const authRoutes = require('./routes/authRoutes');
 const PORT = process.env.PORT;
 const DB_URL = process.env.DB_URL || 'mongodb://127.0.0.1:27017/shortener';
 
 const app = express();
 app.set('view engine', 'ejs');
 app.use(express.urlencoded({ extended: false }))
+app.use(express.json())
+app.use(cookieParser());
 
 mongoose.connect(DB_URL)
     .then(() => console.log('Connected to the DB'))
     .then(() => app.listen(PORT), console.log(`Connected to ${PORT}`))
     .catch((error) => console.log({ "Error": error }))
 
-app.get('/', async (req, res) => {
-    await Url.find()
-        .then((urls) => res.render('home', { urls }))
-        .catch((error) => res.sendStatus(404))
-})
+app.use('*', checkUser);
 
-app.get('/:shortUrl', async (req, res) => {
-    const shortUrl = req.params.shortUrl;
-    await Url.findOne({ shortUrl })
-        .then((result) => res.redirect(`${ result.longUrl }`))
-        .catch((error) => res.sendStatus(500))
-})
+app.use('/', userRoutes);
 
-app.post('/short', async (req, res) => {
-    const { url } = req.body;
-    const shortUrl = randomstring.generate(8);
-    if (url.slice(0, 8) === 'https://'){
-        const newUrl = await new Url({
-            longUrl: url,
-            shortUrl: shortUrl
-        });
-        newUrl.save()
-            .then(() => res.redirect('/'))
-            .catch((error) => console.log({ "Error": error }))
-    } else {
-        const http = 'https://';
-        const newUrl = await new Url({
-            longUrl: http + url,
-            shortUrl: shortUrl
-        });
-        newUrl.save()
-            .then(() => res.redirect('/'))
-            .catch((error) => console.log({ "Error": error }))
-    }
-    
-})
+app.use('/user', authRoutes);
