@@ -25,13 +25,17 @@ const register_post = async (req, res) => {
     }
 
     try {
+        const userr = await User.findOne({ email });
+        console.log({userr});
+        if (userr) {
+            return res.status(200).json({ error: 'Email already exists' });
+        }
         const user = await User.create({ username, email, password, urls: [] });
         const token = createToken(user._id);
         res.cookie('url_cookie', token, { httpOnly: true, maxAge: maxAge * 1000 });
-        res.status(200).json({ user: user._id });
-    } 
-    catch (err) {  
-        res.status(400).json({ error: 'User Registeration Failed' });
+        res.status(200).json({ message: 'User Created Successfully' });
+    } catch (err) {  
+        res.status(400).json({ Error: 'User Registeration Failed' });
     }
 };
 
@@ -43,16 +47,21 @@ const login = (req, res) => {
 
 const login_post = async (req, res) => {
     const { email, password } = req.body;
-
     try {
         const users = await User.login(email, password);
-        const token = createToken(users._id);
-        res.cookie('url_cookie', token, { httpOnly: true, maxAge: maxAge * 1000 });
-        res.status(200).json({ user: users._id });
+        console.log({users})
+        if (users) {
+            console.log({ user: 'i be user :D' })
+            const token = createToken(users._id);
+            res.cookie('url_cookie', token, { httpOnly: true, maxAge: maxAge * 1000 });
+            return res.status(200).json({ message: 'User logged in successfully' });
+        }
+        console.log({ user: 'i no be user ooh :|' })
+        return res.status(404).json({ error: 'User not found' })
+    } catch(err) {
+        return res.status(500).json({ error: 'User login failed!!' })
     }
-    catch (err) {
-        res.status(400).json({ error: 'User Login Failed' })
-    }
+    
 };
 
 

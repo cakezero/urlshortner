@@ -6,10 +6,11 @@ const { checkUser } = require('./middleware/authToken');
 const userRoutes = require('./routes/userRoutes');
 const authRoutes = require('./routes/authRoutes');
 const PORT = process.env.PORT;
-const DB_URL = process.env.DB_URL || 'mongodb://127.0.0.1:27017/shortener';
+const DB_URL = process.env.DB_URL || 'mongodb://127.0.0.1:27017/urlshortener';
 
 const app = express();
 app.set('view engine', 'ejs');
+app.use('/public', express.static('public'))
 app.use(express.urlencoded({ extended: false }))
 app.use(express.json())
 app.use(cookieParser());

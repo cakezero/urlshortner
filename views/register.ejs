@@ -1,0 +1,94 @@
+<!--
+Author: Colorlib
+Author URL: https://colorlib.com
+License: Creative Commons Attribution 3.0 Unported
+License URL: http://creativecommons.org/licenses/by/3.0/
+-->
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Register</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <script type="application/x-javascript"> addEventListener("load", function() { setTimeout(hideURLbar, 0); }, false); function hideURLbar(){ window.scrollTo(0,1); } </script>
+        <!-- Custom Theme files -->
+        <link href="../public/style.css" rel="stylesheet" type="text/css" media="all" />
+        <!-- //Custom Theme files -->
+        <!-- web font -->
+        <link href="//fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i" rel="stylesheet">
+        <!-- //web font -->
+    </head>
+    <body>
+        <!-- main -->
+        <div class="main-w3layouts wrapper">
+            <h1>USER SIGNUP</h1>
+            <div class="main-agileinfo">
+                <div class="agileits-top">
+                    <form>
+                        <input class="text" type="text" name="username" placeholder="Username" required>
+                        <div id="username-error"></div>
+                        <input class="email" type="email" name="email" placeholder="Email" required>
+                        <div id="email-error"></div>
+                        <input class="text" type="password" name="password" placeholder="Password" required>
+                        <input class="text w3lpass" type="password" name="password2" placeholder="Confirm Password" required>
+                        <div id="password-error"></div>
+                        <input type="submit" id="btn" value="SIGNUP">
+                    </form>
+                    <p>Already have an Account? <a href="/user/login"> Login</a></p>
+                </div>
+            </div>
+            <!-- copyright -->
+            <div class="colorlibcopy-agile">
+                <p>© <script>document.write(new Date().getFullYear())</script> Colorlib Signup Form. All rights reserved | Design by <a href="https://colorlib.com/" target="_blank">Colorlib</a></p>
+            </div>
+            <!-- //copyright -->
+            <ul class="colorlib-bubbles">
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+            </ul>
+        </div>
+        <!-- //main -->
+    </body>
+
+    <script>
+        const form = document.querySelector('form');
+        const btn = document.getElementById('btn');
+
+        btn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            const username = form.username.value;
+            const email = form.email.value;
+            const password = form.password.value;
+            const password2 = form.password2.value;
+
+            if (password !== password2) {
+                return document.getElementById('password-error').innerHTML = 'Passwords are not correct';
+            }
+
+            await fetch('/user/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, email, password, password2 })
+            }).then(async (res) => {
+                const data = await res.json();
+                console.log(data);
+                if (data.error) {
+                    document.getElementById('username-error').style.setProperty("--script-content", `${data.error.username}`);
+                    document.getElementById('email-error').style.setProperty("--script-content", `${data.error.email}`);
+                    document.getElementById('password-error').style.setProperty("--script-content", `${data.error.password}`);
+                }
+                if (data.message) {
+                    window.location.href = '/'
+                }
+            }).catch((err) => window.location.href = '/user/register' )
+        })
+    </script>
+</html>
