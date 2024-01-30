@@ -27,7 +27,7 @@ const userSchema = new mongoose.Schema({
         type: mongoose.Schema.ObjectId,
         ref: 'Urls'
     }]
-});
+}, {timestamps: true});
 
 userSchema.pre('save', async function(next) {
     const salt = await bcrypt.genSaltSync(14);

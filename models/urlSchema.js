@@ -15,7 +15,7 @@ const urlSchema = new Schema({
         type: mongoose.Schema.ObjectId,
         ref: 'User'
     }
-})
+}, {timestamps: true})
 
 const Url = mongoose.model('urls', urlSchema);
 
