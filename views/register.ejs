@@ -79,7 +79,6 @@ License URL: http://creativecommons.org/licenses/by/3.0/
                 body: JSON.stringify({ username, email, password, password2 })
             }).then(async (res) => {
                 const data = await res.json();
-                console.log(data);
                 if (data.error) {
                     document.getElementById('username-error').style.setProperty("--script-content", `${data.error.username}`);
                     document.getElementById('email-error').style.setProperty("--script-content", `${data.error.email}`);
@@ -88,7 +87,7 @@ License URL: http://creativecommons.org/licenses/by/3.0/
                 if (data.message) {
                     window.location.href = '/'
                 }
-            }).catch((err) => window.location.href = '/user/register' )
+            }).catch((err) => console.log(err) )
         })
     </script>
 </html>

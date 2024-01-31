@@ -69,6 +69,9 @@ const short = async (req, res) => {
     shortUrl += urlBody[u];
   }
 
+  if (shortUrl.length != 5) {
+    shortUrl = shortUrl.slice(0, 5);
+  }
 
   if (!token) {
     return res.status(201).json({
@@ -90,8 +93,6 @@ const short = async (req, res) => {
       const urll = await Url.create({ longUrl: url, shortUrl, user });
       user.urls.push(urll._id);
       user.save();
-      console.log(user.urls);
-      console.log({ user: "url created and saved successfuly" });
       return res.json({ message: "Url Shortened Successfuly!!" });
     }
   });

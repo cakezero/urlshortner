@@ -49,7 +49,6 @@
             e.preventDefault();
             
             const url = form.url.value;
-            console.log({url})
             await fetch('/short', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -68,7 +67,6 @@
                     form.reset();
                 }
                 if (data.message) {
-                    console.log('hello')
                     window.location.href = '/'
                 }
                 if (data.error) {

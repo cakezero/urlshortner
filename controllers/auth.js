@@ -26,7 +26,6 @@ const register_post = async (req, res) => {
 
     try {
         const userr = await User.findOne({ email });
-        console.log({userr});
         if (userr) {
             return res.status(200).json({ error: 'Email already exists' });
         }
@@ -49,14 +48,11 @@ const login_post = async (req, res) => {
     const { email, password } = req.body;
     try {
         const users = await User.login(email, password);
-        console.log({users})
         if (users) {
-            console.log({ user: 'i be user :D' })
             const token = createToken(users._id);
             res.cookie('url_cookie', token, { httpOnly: true, maxAge: maxAge * 1000 });
             return res.status(200).json({ message: 'User logged in successfully' });
         }
-        console.log({ user: 'i no be user ooh :|' })
         return res.status(404).json({ error: 'User not found' })
     } catch(err) {
         return res.status(500).json({ error: 'User login failed!!' })
