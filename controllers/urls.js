@@ -1,4 +1,3 @@
-require("dotenv").config();
 const Url = require("../models/urlSchema");
 const User = require("../models/authSchema");
 const validator = require("validator");
@@ -27,27 +26,31 @@ const home = async (req, res) => {
   });
 };
 
+// Redirection to the url
 const shortLink = async (req, res) => {
-  const shortUrl = req.params.shortUrl;
-  await Url.findOne({ shortUrl })
-    .then((result) => res.redirect(`${result.longUrl}`))
-    .catch((error) => res.sendStatus(404));
+  const shortUrl = req.params.short;
+
+  try {
+
+    const url = await Url.findOne({ shortUrl });
+    return res.redirect(`${url.longUrl}`);
+
+  } catch (error) {
+  
+    return res.sendStatus(404);
+  }
 };
 
+// Url shortener function
 const short = async (req, res) => {
   const token = req.cookies.url_cookie;
   let { url } = req.body;
-  const protocol = 'urlshortener'
 
-  if (
-    !validator.isURL(url, {
-      require_protocol: true,
-    })
-  ) {
+  if (!validator.isURL(url, { require_protocol: true })) {
     return res.status(200).json({ error: "Invalid Url passed" });
   }
 
-  const urlParts = url.split('://');
+  const urlParts = url.split("://");
 
   const urlbody = urlParts[1];
 
@@ -61,7 +64,7 @@ const short = async (req, res) => {
 
   let shortUrl = "";
 
-  for (i = 0; i < 8; i++) {
+  for (i = 0; i < 2; i++) {
     let u = Math.floor(Math.random() * urlBody.length);
     if (i % 2 == 0) {
       shortUrl += urlBody[u].toUpperCase();
@@ -72,6 +75,7 @@ const short = async (req, res) => {
   if (shortUrl.length != 5) {
     shortUrl = shortUrl.slice(0, 5);
   }
+
 
   if (!token) {
     return res.status(201).json({
@@ -98,8 +102,64 @@ const short = async (req, res) => {
   });
 };
 
+// Delete Functions
+const delete_url = async (req, res) => {
+  const shortUrl = req.body.url;
+
+  const url = await Url.findOne({ shortUrl });
+
+  if (!url) {
+    return res.status(400).json({ error: "Url does not exist" });
+  }
+
+  try {
+    const ress = await Url.findByIdAndDelete(url._id)
+    const user = await User.findById(ress.user);
+
+    if (!ress._id in user.urls) {
+      return res.json({ nott: "no user here" });
+    }
+    user.urls.splice(user.urls.indexOf(ress._id), 1);
+    user.save();
+    return res.json({ message: "Url deleted successfully!!" });
+  } catch (err) {
+    return res.json({ error: "Url deletion failed!" });
+  }
+};
+
+const delete_urls = (req, res) => {};
+
+const delete_user = (req, res) => {
+  res.render("delete-user");
+};
+
+const delete_user_post = async (req, res) => {
+  const token = req.cookies.url_cookie;
+
+  if (!token) {
+    return res.redirect("/user/login");
+  }
+
+  jwt.verify(token, process.env.SECRET_MESSAGE, async (err, decodedToken) => {
+    if (err) {
+      return res.redirect("/user/login");
+    }
+
+    try {
+      await User.findByIdAndDelete(decodedToken.id);
+      return res.json({ message: "User deleted successfully!!" });
+    } catch (err) {
+      return res.json({ error: "User deletion failed!" });
+    }
+  });
+};
+
 module.exports = {
   home,
   shortLink,
   short,
+  delete_urls,
+  delete_url,
+  delete_user,
+  delete_user_post,
 };

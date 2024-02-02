@@ -1,6 +1,6 @@
-require('dotenv').config();
 const User = require('../models/authSchema');
-const jwt = require('jsonwebtoken')
+const jwt = require('jsonwebtoken');
+const validator = require('validator')
 
 
 //  MaxAge
@@ -14,6 +14,7 @@ const createToken = (id) => {
 
 // Register
 const register = (req, res) => {
+    console.log('yay')
     res.render('register')
 };
 
@@ -24,17 +25,30 @@ const register_post = async (req, res) => {
        return res.status(400).json({ error: 'Passwords do not match' });
     }
 
+    if (!validator.isEmail(email)) {
+        return  res.status(400).json({ error: 'Email is invalid' })
+    }
+
     try {
+
         const userr = await User.findOne({ email });
+        const uname = await User.findOne({ username })
+
         if (userr) {
-            return res.status(200).json({ error: 'Email already exists' });
+            return res.status(400).json({ error: 'Email already exists' });
         }
+
+        if (uname) {
+            return res.status(400).json({ error: 'Username already exists' })
+        }
+
         const user = await User.create({ username, email, password, urls: [] });
         const token = createToken(user._id);
         res.cookie('url_cookie', token, { httpOnly: true, maxAge: maxAge * 1000 });
         res.status(200).json({ message: 'User Created Successfully' });
+
     } catch (err) {  
-        res.status(400).json({ Error: 'User Registeration Failed' });
+        res.status(500).json({ error: 'User Registeration Failed' });
     }
 };
 
@@ -46,19 +60,29 @@ const login = (req, res) => {
 
 const login_post = async (req, res) => {
     const { email, password } = req.body;
+    console.log({email, password})
+
     try {
-        const users = await User.login(email, password);
-        if (users) {
-            const token = createToken(users._id);
-            res.cookie('url_cookie', token, { httpOnly: true, maxAge: maxAge * 1000 });
-            return res.status(200).json({ message: 'User logged in successfully' });
+
+        const users = await User.findOne({ email });
+
+        if (!users) {
+            return res.status(400).json({ error: 'Email does not exist' })
         }
-        return res.status(404).json({ error: 'User not found' })
+
+        const token = createToken(users._id);
+        res.cookie('url_cookie', token, { httpOnly: true, maxAge: maxAge * 1000 });
+        return res.status(200).json({ message: 'User logged in successfully' });
+
     } catch(err) {
         return res.status(500).json({ error: 'User login failed!!' })
     }
     
 };
+
+const profile = (req, res) => {
+    res.render('profile')
+}
 
 
 // Logout
@@ -72,5 +96,6 @@ module.exports = {
     register_post,
     login,
     login_post,
+    profile,
     logout
 }

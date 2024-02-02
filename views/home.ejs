@@ -27,13 +27,16 @@
                     <% if (user) { %>
                         <% if (urls) { %>
                             <% urls.forEach(url => { %>
-                                <tr id="rowe">
+                                <tr>
                                     <td>
-                                        <a target="_blank" rel="noreferrer noopener" href="<%= url.longUrl %>"><%= url.longUrl %></a>
+                                        <a target="_blank" rel="noreferrer noopener" id="longUrl" href="<%= url.longUrl %>"><%= url.longUrl %></a>
                                     </td>
                                     <td>
-                                        <a target="_blank" rel="noreferrer noopener" href="<%= url.shortUrl %>"><%= url.shortUrl %></a>
-                                    </td>
+                                        <a target="_blank" rel="noreferrer noopener" id="shortUrl" href="<%= url.shortUrl %>"><%= url.shortUrl %></a>
+                                    </td> 
+                                    <!-- <td>
+                                        <button class="btn btn-danger" id="delete" type="submit">Delete</button>
+                                    </td> -->
                                 </tr> 
                             <% }) %>
                         <% } %>
@@ -45,6 +48,7 @@
     <script>
         const form = document.querySelector('form');
         const btn = document.querySelector('button');
+        const del = document.getElementById('delete');
         form.fth.addEventListener('click', async (e) => {
             e.preventDefault();
             
@@ -54,26 +58,60 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ url })
             }).then(async (res) => {
-                const data = await res.json();
-                if (data.notSigned) {
-                    alert('You need to have an account to have your urls saved');
-                    document.getElementById('rowe').innerHTML = ` 
-                                    <td>
-                                        <a target="_blank" rel="noreferrer noopener" href="${data.notSigned.longUrl}">${data.notSigned.longUrl}</a>
-                                    </td>
-                                    <td>
-                                        <a target="_blank" rel="noreferrer noopener" href="${data.notSigned.longUrl}">${data.notSigned.shortUrl}</a>
-                                    </td>`
-                    form.reset();
-                }
-                if (data.message) {
-                    window.location.href = '/'
-                }
-                if (data.error) {
-                    alert(data.error)
-                    form.reset();
-                }
+                    const data = await res.json();
+                    if (data.notSigned) {
+                        alert('You need to have an account to have your urls saved');
+                        document.getElementById('rowe').innerHTML = ` 
+                                        <td>
+                                            <a target="_blank" rel="noreferrer noopener" href="${data.notSigned.longUrl}">${data.notSigned.longUrl}</a>
+                                        </td>
+                                        <td>
+                                            <a target="_blank" rel="noreferrer noopener" href="${data.notSigned.longUrl}">${data.notSigned.shortUrl}</a>
+                                        </td>`
+                        form.reset();
+                    }
+                    if (data.message) {
+                        window.location.href = '/'
+                    }
+                    if (data.error) {
+                        alert(data.error)
+                        form.reset();
+                    }
             }).catch((error) => console.log(error) );
         })
+
+        // del.addEventListener('click', async (e) => {
+        //     e.preventDefault();
+        //     const urll = document.getElementById('longUrl').innerHTML;
+        //     const url = document.getElementById('shortUrl').innerHTML;
+        //     const confirmDelete = window.confirm(`Are you sure you want to delete this '${urll}' url?`);
+        //     console.log({shortUrl: url, longUrl: urll})
+        //     console.log(confirmDelete)
+            
+        //     if(confirmDelete == false) {
+        //         alert('Url delete operation cancelled');
+        //     } else {
+
+        //         await fetch('/delete-url', {
+        //             method: 'POST',
+        //             headers: { 'Content-Type': 'application/json' },
+        //             body: JSON.stringify({ url })
+        //         }).then(async (res) => {
+        //             const data = await res.json();
+        //             if (data.nott) {
+        //                 alert('Url deletion failed!!');
+        //             }
+    
+        //             if (data.message) {
+        //                 window.location.href = '/'
+        //             }
+    
+        //             if(data.error) {
+        //                 alert(data.error)
+        //             }
+    
+        //         }).catch((err) => alert('Something went wrong. Please try again'), console.log({err}));
+        //     }
+        // })
     </script>
 </html>
