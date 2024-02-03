@@ -80,10 +80,9 @@ License URL: http://creativecommons.org/licenses/by/3.0/
             }).then(async (res) => {
                 const data = await res.json();
                 if (data.error) {
-                    document.getElementById('username-error').style.setProperty("--script-content", `${data.error.username}`);
-                    document.getElementById('email-error').style.setProperty("--script-content", `${data.error.email}`);
-                    document.getElementById('password-error').style.setProperty("--script-content", `${data.error.password}`);
+                    alert(data.error)
                 }
+                
                 if (data.message) {
                     window.location.href = '/'
                 }

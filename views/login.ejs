@@ -70,7 +70,13 @@ License URL: http://creativecommons.org/licenses/by/3.0/
                 body: JSON.stringify({ email, password })
             }).then(async (res) => {
                 const data = await res.json();
-                data.message ? window.location.href = '/' : alert(data.error); form.reset();
+                if (data.message) {
+                    window.location.href = '/' 
+                } 
+                
+                if (data.error) {
+                    alert(data.error);
+                }
             }).catch((err) => alert('Something went wrong. Please try agian!!'))
         })
     </script>

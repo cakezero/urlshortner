@@ -35,17 +35,11 @@ userSchema.pre('save', async function(next) {
     next();
 });
 
-userSchema.statics.login = async function (email, password) {
-    const user = await this.findOne({ email });
-    if (user) {
-        const auth = await bcrypt.compare(password, user.password);
-        if (auth) { 
-            return user;
-        }
-        throw Error('Incorrect email or password');
-    }
-    throw Error('Incorrect email or password');
-}
+userSchema.pre('remove', async function(next) {
+    await this.model('Urls').deleteMany({ user: this._id });
+    next();
+});
+
 
 const User = mongoose.model('users', userSchema);
 
