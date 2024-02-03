@@ -1,6 +1,7 @@
 const User = require('../models/authSchema');
 const jwt = require('jsonwebtoken');
-const validator = require('validator')
+const validator = require('validator');
+const bcrypt = require('bcrypt')
 
 
 //  MaxAge
@@ -14,7 +15,6 @@ const createToken = (id) => {
 
 // Register
 const register = (req, res) => {
-    console.log('yay')
     res.render('register')
 };
 
@@ -60,17 +60,20 @@ const login = (req, res) => {
 
 const login_post = async (req, res) => {
     const { email, password } = req.body;
-    console.log({email, password})
 
     try {
 
-        const users = await User.findOne({ email });
+        const user = await User.findOne({ email });
 
-        if (!users) {
-            return res.status(400).json({ error: 'Email does not exist' })
+        if (!user) {
+            return res.status(404).json({ error: 'Email does not exist' })
+        }
+        const passwordCheck = await bcrypt.compare(password, user.password);
+        if (!passwordCheck) {
+            return res.json({ error: 'Email or Password is incorrect' })
         }
 
-        const token = createToken(users._id);
+        const token = createToken(user._id);
         res.cookie('url_cookie', token, { httpOnly: true, maxAge: maxAge * 1000 });
         return res.status(200).json({ message: 'User logged in successfully' });
 

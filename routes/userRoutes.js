@@ -10,6 +10,6 @@ router
   .post("/short", URL.short)
   .post("/delete-urls", requireAuth, URL.delete_urls)
   .post("/delete-user", requireAuth, URL.delete_user_post)
-  .get("/:short", requireAuth, URL.shortLink);
+  .get("/:short", URL.shortLink);
 
 module.exports = router;
