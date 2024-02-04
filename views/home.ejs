@@ -13,7 +13,7 @@
 
             <form class="my-4 form-inline">
                 <input type="text" name="url" placeholder="Enter url to be shortened with it's protocol e.g. https://example.com" required class="form-control form-inline col mr-2">
-                <input type="button" name="fth" id="shortt" class="btn btn-primary my-2" value="Shorten">
+                <input type="button" name="fth" class="btn btn-primary my-2" value="Shorten">
             </form>
         </div>
         <div class="container">
@@ -29,10 +29,10 @@
                         <% if (urls) { %>
                             <% urls.forEach((url, index) => { %>
                                 <tr>
-                                    <td name="long">
+                                    <td>
                                         <a target="_blank" rel="noreferrer noopener" class="longUrl" href="<%= url.longUrl %>"><%= url.longUrl %></a>
                                     </td>
-                                    <td name="short">
+                                    <td>
                                         <a target="_blank" rel="noreferrer noopener" class="shortUrl" href="<%= url.shortUrl %>"><%= domain %><%= url.shortUrl %></a>
                                     </td> 
                                     <td>
