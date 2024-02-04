@@ -11,9 +11,9 @@
         <div class="container">
             <h1 class="hi my-4">URL SHORTENER</h1>
 
-            <form id="forme" class="my-4 form-inline">
+            <form class="my-4 form-inline">
                 <input type="text" name="url" placeholder="Enter url to be shortened with it's protocol e.g. https://example.com" required class="form-control form-inline col mr-2">
-                <button type="submit" name="fth" class="btn btn-primary my-2">Shorten</input>
+                <input type="button" name="fth" id="shortt" class="btn btn-primary my-2" value="Shorten">
             </form>
         </div>
         <div class="container">
@@ -27,16 +27,16 @@
                 <tbody>
                     <% if (user) { %>
                         <% if (urls) { %>
-                            <% urls.forEach(url => { %>
+                            <% urls.forEach((url, index) => { %>
                                 <tr>
-                                    <td>
-                                        <a target="_blank" rel="noreferrer noopener" id="longUrl" href="<%= url.longUrl %>"><%= url.longUrl %></a>
+                                    <td name="long">
+                                        <a target="_blank" rel="noreferrer noopener" class="longUrl" href="<%= url.longUrl %>"><%= url.longUrl %></a>
                                     </td>
-                                    <td>
-                                        <a target="_blank" rel="noreferrer noopener" id="shortUrl" href="<%= url.shortUrl %>"><%= domain %><%= url.shortUrl %></a>
+                                    <td name="short">
+                                        <a target="_blank" rel="noreferrer noopener" class="shortUrl" href="<%= url.shortUrl %>"><%= domain %><%= url.shortUrl %></a>
                                     </td> 
                                     <td>
-                                        <button class="btn btn-danger" id="delete" type="submit">Delete</button>
+                                        <button class="btn btn-danger" onclick="deletee('<%= index %>')" id="<%= index %>" type="button">Delete</button>
                                     </td>
                                 </tr> 
                             <% }) %>
@@ -51,8 +51,6 @@
     </body>
     <script>
         const form = document.querySelector('form')
-        const btn = document.querySelector('button');
-        const del = document.getElementById('delete');
         const domain = document.getElementById('domain').value;
         form.fth.addEventListener('click', async (e) => {
             e.preventDefault();
@@ -65,14 +63,13 @@
             }).then(async (res) => {
                     const data = await res.json();
                     if (data.notSigned) {
-                        alert('You need to have an account to have your urls saved');
                         document.getElementById('rowe').innerHTML = ` 
-                                        <td>
-                                            <a target="_blank" rel="noreferrer noopener" href="${data.notSigned.longUrl}">${data.notSigned.longUrl}</a>
-                                        </td>
-                                        <td>
-                                            <a target="_blank" rel="noreferrer noopener" href="${domain + data.notSigned.shortUrl}">${domain + data.notSigned.shortUrl}</a>
-                                        </td>`
+                            <td>
+                                <a target="_blank" rel="noreferrer noopener" href="${data.notSigned.longUrl}">${data.notSigned.longUrl}</a>
+                            </td>
+                            <td>
+                                <a target="_blank" rel="noreferrer noopener" href="${domain + data.notSigned.shortUrl}">${domain + data.notSigned.shortUrl}</a>
+                            </td>`
                         form.reset();
                     }
                     if (data.message) {
@@ -84,40 +81,36 @@
             }).catch((error) => console.log(error) );
         })
 
-        if (del) {
-            del.addEventListener('click', async (e) => {
-                e.preventDefault();
-                const urll = document.getElementById('longUrl').innerHTML;
-                const url = document.getElementById('shortUrl').innerHTML;
-                const confirmDelete = window.confirm(`Are you sure you want to delete this '${urll}' url?`);
-                console.log({shortUrl: url, longUrl: urll})
-                console.log(confirmDelete)
-                
+            async function deletee(id) {
+                const btn = document.getElementById(`${id}`);
+                const row = btn.closest('tr')
+                const longUrl = row.querySelector('.longUrl').innerHTML;
+                const url = row.querySelector('.shortUrl').innerHTML;
+                const confirmDelete = window.confirm(`Are you sure you want to delete this '${longUrl}' URL?`);
+            
                 if(confirmDelete == false) {
                     alert('Url delete operation cancelled');
-                } else {
-
-                    await fetch('/delete-url', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ url })
-                    }).then(async (res) => {
-                        const data = await res.json();
-                        if (data.nott) {
-                            alert('Url deletion failed!!');
-                        }
-        
-                        if (data.message) {
-                            window.location.href = '/'
-                        }
-        
-                        if(data.error) {
-                            alert(data.error)
-                        }
-        
-                    }).catch((err) => alert('Something went wrong. Please try again'), console.log({err}));
                 }
-            })
-        }
+                console.log('hello')
+                await fetch('/delete-url', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url })
+                }).then(async (res) => {
+                    const data = await res.json();
+                    if (data.nott) {
+                        alert('Url deletion failed!!');
+                    }
+    
+                    if (data.message) {
+                        window.location.href = '/'
+                    }
+    
+                    if(data.error) {
+                        alert(data.error)
+                    }
+    
+                }).catch((err) => alert('Something went wrong. Please try again'), console.log({err}));
+            }
     </script>
 </html>

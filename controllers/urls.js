@@ -94,7 +94,6 @@ const short = async (req, res) => {
 const delete_url = async (req, res) => {
   const fullUrl = req.body.url;
   const splittedUrl = fullUrl.split('/')
-  console.log(splittedUrl)
   const shortUrl = splittedUrl.pop();
 
   if (!shortUrl) {
