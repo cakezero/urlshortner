@@ -51,12 +51,20 @@ const short = async (req, res) => {
 
   const urlb = urlbody.split(".");
 
-  let urlBody = "";
+  let UrlBody = "";
 
   for (i = 0; i < urlb.length; i++) {
-    urlBody += urlb[i];
+    UrlBody += urlb[i];
   }
 
+  let urlBody = ""
+
+  let UrLBody = UrlBody.split("/");
+  
+  for (i = 0; i < UrLBody.length; i++) {
+    urlBody += UrLBody[i];
+  }
+  
   let shortUrl = "";
 
   for (i = 0; i < shortUrlLength; i++) {
@@ -101,13 +109,13 @@ const delete_url = async (req, res) => {
   }
 
   try {
-    const url = await Url.findOne({ shortUrl });
+    const url = await Url.find({ shortUrl });
 
     const ress = await Url.findByIdAndDelete(url._id)
-    const user = await User.findById(ress.user);
+    const user = await User.findById(url.user);
 
     if (!ress._id in user.urls) {
-      return res.json({ nott: "no user here" });
+      return res.json({ nott: "no url here" });
     }
 
     user.urls.splice(user.urls.indexOf(ress._id), 1);
@@ -120,7 +128,22 @@ const delete_url = async (req, res) => {
   }
 };
 
-const delete_urls = (req, res) => {};
+const delete_urls = async (req, res) => {
+  const token = req.cookies.url_cookie;
+
+  try {
+
+    const user = await checkForUser(token);
+    await Url.deleteMany({ user: user._id })
+    return res.status(200).json({ message: `All urls for ${user.username} has been deleted successfully` });
+
+  } catch (error) {
+
+    return res.status(500).json({ error })
+
+  }
+  
+};
 
 const delete_user = (req, res) => {
   res.render("delete-user");
@@ -141,7 +164,7 @@ const delete_user_post = async (req, res) => {
 
   } catch (err) {
     
-    return res.json({ error: "User deletion failed!" });
+    return res.json({ error: "User deletion failed!, Try again" });
   }
 };
 
