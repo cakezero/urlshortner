@@ -1,7 +1,8 @@
 const User = require('../models/authSchema');
 const jwt = require('jsonwebtoken');
 const validator = require('validator');
-const bcrypt = require('bcrypt')
+const bcrypt = require('bcrypt');
+const { checkForUser } = require('../middleware/authToken')
 
 
 //  MaxAge
@@ -87,6 +88,26 @@ const profile = (req, res) => {
     res.render('profile')
 }
 
+const profile_update = async (req, res) => {
+    const token = req.cookies.url_cookie;
+    const info = req.body;
+
+    try {
+
+        const user = await checkForUser(token);
+
+        user.username = info.username;
+        user.email = info.username;
+        user.password = info.password;
+        user.save();
+
+        return res.json({ message: 'Profile Update Successfull!' })
+    } catch (error) {
+        return res.status(500).json({ error: 'Profile Update Failed!' })
+    }
+
+}
+
 
 // Logout
 const logout = (req, res) => {
@@ -100,5 +121,6 @@ module.exports = {
     login,
     login_post,
     profile,
+    profile_update,
     logout
 }
