@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-const User = require('./authSchema')
 
 const urlSchema = new Schema({
     longUrl: {
@@ -12,7 +11,7 @@ const urlSchema = new Schema({
         required: true
     },
     user: {
-        type: mongoose.Schema.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
     }
 }, {timestamps: true})
