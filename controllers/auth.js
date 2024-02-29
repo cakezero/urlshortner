@@ -1,126 +1,115 @@
-const User = require('../models/authSchema');
-const jwt = require('jsonwebtoken');
-const validator = require('validator');
-const bcrypt = require('bcrypt');
-const { checkForUser } = require('../middleware/authToken')
-
+const User = require("../models/authSchema");
+const jwt = require("jsonwebtoken");
+const validator = require("validator");
+const bcrypt = require("bcrypt");
+const { checkForUser } = require("../middleware/authToken");
 
 //  MaxAge
-const maxAge = 1 * 24 * 60 * 60
+const maxAge = 1 * 24 * 60 * 60;
 const createToken = (id) => {
-    return jwt.sign({ id }, process.env.SECRET_MESSAGE, {
-        expiresIn: maxAge
-    });
-}
-
+  return jwt.sign({ id }, process.env.SECRET_MESSAGE, {
+    expiresIn: maxAge,
+  });
+};
 
 // Register
 const register = (req, res) => {
-    res.render('register')
+  res.render("register");
 };
 
 const register_post = async (req, res) => {
-    const { username, email, password, password2 } = req.body;
+  const { username, email, password, password2 } = req.body;
 
-    if (password !== password2) {
-       return res.status(400).json({ error: 'Passwords do not match' });
+  if (password !== password2) {
+    return res.status(400).json({ error: "Passwords do not match" });
+  }
+
+  if (!validator.isEmail(email)) {
+    return res.status(400).json({ error: "Email is invalid" });
+  }
+
+  try {
+    const userr = await User.findOne({ email });
+    const uname = await User.findOne({ username });
+
+    if (userr) {
+      return res.status(400).json({ error: "Email already exists" });
     }
 
-    if (!validator.isEmail(email)) {
-        return  res.status(400).json({ error: 'Email is invalid' })
+    if (uname) {
+      return res.status(400).json({ error: "Username already exists" });
     }
 
-    try {
-
-        const userr = await User.findOne({ email });
-        const uname = await User.findOne({ username })
-
-        if (userr) {
-            return res.status(400).json({ error: 'Email already exists' });
-        }
-
-        if (uname) {
-            return res.status(400).json({ error: 'Username already exists' })
-        }
-
-        const user = await User.create({ username, email, password, urls: [] });
-        const token = createToken(user._id);
-        res.cookie('url_cookie', token, { httpOnly: true, maxAge: maxAge * 1000 });
-        res.status(200).json({ message: 'User Created Successfully' });
-
-    } catch (err) {  
-        res.status(500).json({ error: 'User Registeration Failed' });
-    }
+    const user = await User.create({ username, email, password, urls: [] });
+    const token = createToken(user._id);
+    res.cookie("url_cookie", token, { httpOnly: true, maxAge: maxAge * 1000 });
+    res.status(200).json({ message: "User Created Successfully" });
+  } catch (err) {
+    res.status(500).json({ error: "User Registeration Failed" });
+  }
 };
-
 
 // Login
 const login = (req, res) => {
-    res.render('login')
+  res.render("login");
 };
 
 const login_post = async (req, res) => {
-    const { email, password } = req.body;
+  const { email, password } = req.body;
 
-    try {
+  try {
+    const user = await User.findOne({ email });
 
-        const user = await User.findOne({ email });
-
-        if (!user) {
-            return res.status(404).json({ error: 'Email does not exist' })
-        }
-        const passwordCheck = await bcrypt.compare(password, user.password);
-        if (!passwordCheck) {
-            return res.json({ error: 'Email or Password is incorrect' })
-        }
-
-        const token = createToken(user._id);
-        res.cookie('url_cookie', token, { httpOnly: true, maxAge: maxAge * 1000 });
-        return res.status(200).json({ message: 'User logged in successfully' });
-
-    } catch(err) {
-        return res.status(500).json({ error: 'User login failed!!' })
+    if (!user) {
+      return res.status(404).json({ error: "Email does not exist" });
     }
-    
+    const passwordCheck = await bcrypt.compare(password, user.password);
+    if (!passwordCheck) {
+      return res.json({ error: "Email or Password is incorrect" });
+    }
+
+    const token = createToken(user._id);
+    res.cookie("url_cookie", token, { httpOnly: true, maxAge: maxAge * 1000 });
+    return res.status(200).json({ message: "User logged in successfully" });
+  } catch (err) {
+    return res.status(500).json({ error: "User login failed!!" });
+  }
 };
 
 const profile = (req, res) => {
-    res.render('profile')
-}
+  res.render("profile");
+};
 
 const profile_update = async (req, res) => {
-    const token = req.cookies.url_cookie;
-    const info = req.body;
+  const token = req.cookies.url_cookie;
+  const info = req.body;
 
-    try {
+  try {
+    const user = await checkForUser(token);
 
-        const user = await checkForUser(token);
+    user.username = info.username;
+    user.email = info.username;
+    user.password = info.password;
+    user.save();
 
-        user.username = info.username;
-        user.email = info.username;
-        user.password = info.password;
-        user.save();
-
-        return res.json({ message: 'Profile Update Successfull!' })
-    } catch (error) {
-        return res.status(500).json({ error: 'Profile Update Failed!' })
-    }
-
-}
-
+    return res.json({ message: "Profile Update Successfull!" });
+  } catch (error) {
+    return res.status(500).json({ error: "Profile Update Failed!" });
+  }
+};
 
 // Logout
 const logout = (req, res) => {
-    res.cookie('url_cookie', '', { maxAge: 1 });
-    res.redirect('/');
-}
+  res.cookie("url_cookie", "", { maxAge: 1 });
+  res.redirect("/");
+};
 
 module.exports = {
-    register,
-    register_post,
-    login,
-    login_post,
-    profile,
-    profile_update,
-    logout
-}
+  register,
+  register_post,
+  login,
+  login_post,
+  profile,
+  profile_update,
+  logout,
+};
